@@ -3,37 +3,72 @@
 @tailwind utilities;
 
 @layer base {
-  /* Tabler Icons CDN — sudah di-load via index.html */
-
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Custom scrollbar agar sesuai tema */
-  ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-  }
-  ::-webkit-scrollbar-track {
-    @apply bg-base-200;
-  }
-  ::-webkit-scrollbar-thumb {
-    @apply bg-base-300 rounded-full;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-base-300;
-  }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { @apply bg-base-200; }
+  ::-webkit-scrollbar-thumb { @apply bg-base-300 rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-base-300; }
 }
 
 @layer components {
-  /* Transisi halus antar route */
-  .page-enter-active,
-  .page-leave-active {
-    transition: opacity 0.2s ease;
+  .page-enter-active, .page-leave-active { transition: opacity 0.2s ease; }
+  .page-enter-from, .page-leave-to { opacity: 0; }
+
+  /* Kiosk pulse glow */
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-primary, #378ADD) 0%, transparent); }
+    50%       { box-shadow: 0 0 0 8px color-mix(in oklch, var(--color-primary, #378ADD) 15%, transparent); }
   }
-  .page-enter-from,
-  .page-leave-to {
-    opacity: 0;
+  .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+
+  /* Scale-in for success icon */
+  @keyframes scale-in {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  .animate-scale { animation: scale-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+  /* Fade-in */
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  .animate-fade-in { animation: fade-in 0.25s ease forwards; }
+
+  /* Gradient dark mode shimmer on toggle button */
+  @keyframes gradient-shift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .btn-gradient-dark {
+    background: linear-gradient(135deg, #0f3460, #16213e, #1a1a2e, #533483);
+    background-size: 300% 300%;
+    animation: gradient-shift 4s ease infinite;
+    border: 1px solid rgba(83, 52, 131, 0.5);
+    color: #e2d9f3;
+  }
+  .btn-gradient-dark:hover {
+    background: linear-gradient(135deg, #533483, #16213e, #0f3460, #1a1a2e);
+    background-size: 300% 300%;
+    animation: gradient-shift 2s ease infinite;
+    color: #fff;
+  }
+  .btn-gradient-light {
+    background: linear-gradient(135deg, #fceabb, #f8b500, #f7971e, #ffd200);
+    background-size: 300% 300%;
+    animation: gradient-shift 4s ease infinite;
+    border: 1px solid rgba(248, 181, 0, 0.4);
+    color: #5a3e00;
+  }
+  .btn-gradient-light:hover {
+    background: linear-gradient(135deg, #ffd200, #f7971e, #f8b500);
+    background-size: 300% 300%;
+    animation: gradient-shift 2s ease infinite;
+    color: #3a2800;
   }
 }
