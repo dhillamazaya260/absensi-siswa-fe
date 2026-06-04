@@ -2,13 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Smooth scroll default */
-html {
-  scroll-behavior: smooth;
+@layer base {
+  /* Tabler Icons CDN — sudah di-load via index.html */
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom scrollbar agar sesuai tema */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-base-200;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-base-300 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-base-300;
+  }
 }
 
-/* Custom scrollbar untuk dark theme (WebKit) */
-::-webkit-scrollbar        { width: 6px; height: 6px; }
-::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  { background: oklch(var(--bc) / 0.15); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: oklch(var(--bc) / 0.28); }
+@layer components {
+  /* Transisi halus antar route */
+  .page-enter-active,
+  .page-leave-active {
+    transition: opacity 0.2s ease;
+  }
+  .page-enter-from,
+  .page-leave-to {
+    opacity: 0;
+  }
+}
