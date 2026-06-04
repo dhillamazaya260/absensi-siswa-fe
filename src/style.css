@@ -2,11 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Tambahkan animasi halus custom jika diperlukan */
-@keyframes pulse-glow {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(59, 130, 246, 0)); }
-  50% { transform: scale(1.02); filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5)); }
+/* Smooth scroll default */
+html {
+  scroll-behavior: smooth;
 }
-.animate-pulse-glow {
-  animation: pulse-glow 2s infinite ease-in-out;
-}
+
+/* Custom scrollbar untuk dark theme (WebKit) */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: oklch(var(--bc) / 0.15); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: oklch(var(--bc) / 0.28); }
