@@ -1,4 +1,5 @@
 import { computed } from 'vue'
+import { usePasswordStrength } from '@/composables/usePasswordStrength.js'
 
 export function usePasswordStrength(password) {
   const score = computed(() => {
