@@ -9,54 +9,258 @@
   }
 
   ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { @apply bg-base-200; }
-  ::-webkit-scrollbar-thumb { @apply bg-base-300 rounded-full; }
-  ::-webkit-scrollbar-thumb:hover { @apply bg-base-300; }
+  
+  ::-webkit-scrollbar-track { 
+    background-color: var(--color-base-200); 
+  }
+  
+  ::-webkit-scrollbar-thumb { 
+    background-color: color-mix(in oklch, var(--color-base-300) 60%, transparent); 
+    border-radius: 9999px; 
+  }
+  
+  ::-webkit-scrollbar-thumb:hover { 
+    background-color: var(--color-base-300); 
+  }
 }
 
 @layer components {
+
+  /* ── Page transitions ───────────────────────────────── */
   .page-enter-active, .page-leave-active { transition: opacity 0.2s ease; }
   .page-enter-from, .page-leave-to { opacity: 0; }
 
-  /* Kiosk pulse glow */
-  @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-primary, #378ADD) 0%, transparent); }
-    50%       { box-shadow: 0 0 0 8px color-mix(in oklch, var(--color-primary, #378ADD) 15%, transparent); }
+  /* ── Input / Select / Textarea — dynamic adaptive borders ── */
+  /*
+   * DaisyUI v5 default: border-color at 20% base-content opacity → 
+   * barely visible in dark mode.
+   * We override to 28% + add a smooth focus ring (thin, not solid).
+   */
+  .input,
+  .select,
+  .textarea {
+    transition: border-color 0.15s ease,
+                box-shadow 0.15s ease,
+                background-color 0.15s ease;
   }
-  .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
 
-  /* Scale-in for success icon */
-  @keyframes scale-in {
-    from { transform: scale(0.5); opacity: 0; }
-    to   { transform: scale(1);   opacity: 1; }
+  /* Dynamic adaptive borders — clear outline for both themes */
+  .input-bordered,
+  .select-bordered,
+  .textarea-bordered {
+    border-color: color-mix(
+      in oklch,
+      var(--color-base-content, oklch(0.15 0 0)) 12%,
+      transparent
+    ) !important;
+    border-width: 1px !important;
   }
-  .animate-scale { animation: scale-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
-  /* Fade-in */
-  @keyframes fade-in {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  .input-bordered:hover,
+  .select-bordered:hover,
+  .textarea-bordered:hover {
+    border-color: color-mix(
+      in oklch,
+      var(--color-base-content, oklch(0.15 0 0)) 18%,
+      transparent
+    ) !important;
   }
-  .animate-fade-in { animation: fade-in 0.25s ease forwards; }
 
-  /* Gradient dark mode shimmer on toggle button */
+  /* Focus: dynamic ring with subtle glow — not thick, not solid */
+  .input:focus,
+  .input-bordered:focus,
+  .select:focus,
+  .select-bordered:focus,
+  .textarea:focus,
+  .textarea-bordered:focus {
+    outline: none !important;
+    border-color: var(--color-primary) !important;
+    box-shadow:
+      0 0 0 2px color-mix(in oklch, var(--color-base-100) 100%, transparent),
+      0 0 0 4px color-mix(in oklch, var(--color-primary) 25%, transparent),
+      0 0 12px 2px color-mix(in oklch, var(--color-primary) 30%, transparent) !important;
+  }
+
+  html[data-theme="dark"] .input:focus,
+  html[data-theme="dark"] .input-bordered:focus,
+  html[data-theme="dark"] .select:focus,
+  html[data-theme="dark"] .select-bordered:focus,
+  html[data-theme="dark"] .textarea:focus,
+  html[data-theme="dark"] .textarea-bordered:focus {
+    box-shadow:
+      0 0 0 2px color-mix(in oklch, var(--color-base-100) 100%, transparent),
+      0 0 0 4px color-mix(in oklch, var(--color-primary) 40%, transparent),
+      0 0 16px 4px color-mix(in oklch, var(--color-primary) 35%, transparent) !important;
+  }
+
+  /* Error state — subtle, not harsh, with feedback */
+  .input-error,
+  .input-bordered.input-error,
+  .select-bordered.input-error,
+  .textarea-bordered.input-error {
+    border-color: color-mix(
+      in oklch,
+      var(--color-error) 45%,
+      transparent
+    ) !important;
+  }
+
+  .input-error:focus,
+  .input-bordered.input-error:focus,
+  .select-bordered.input-error:focus,
+  .textarea-bordered.input-error:focus {
+    border-color: var(--color-error) !important;
+    box-shadow:
+      0 0 0 2px color-mix(in oklch, var(--color-base-100) 100%, transparent),
+      0 0 0 4px color-mix(in oklch, var(--color-error) 14%, transparent) !important;
+  }
+
+  html[data-theme="dark"] .input-error:focus,
+  html[data-theme="dark"] .input-bordered.input-error:focus,
+  html[data-theme="dark"] .select-bordered.input-error:focus,
+  html[data-theme="dark"] .textarea-bordered.input-error:focus {
+    box-shadow:
+      0 0 0 2px color-mix(in oklch, var(--color-base-100) 100%, transparent),
+      0 0 0 4px color-mix(in oklch, var(--color-error) 25%, transparent),
+      0 0 12px 2px color-mix(in oklch, var(--color-error) 30%, transparent) !important;
+  }
+
+  /* ── Card borders — consistent thin lines ─────────────── */
+  .card-border-dynamic {
+    border: 1px solid color-mix(
+      in oklch,
+      var(--color-base-content, oklch(0.15 0 0)) 10%,
+      transparent
+    );
+  }
+
+  html[data-theme="dark"] .card {
+    border-color: color-mix(in oklch, var(--color-primary) 20%, transparent) !important;
+    box-shadow: 0 0 20px 0 color-mix(in oklch, var(--color-primary) 12%, transparent) !important;
+  }
+
+  /* ── Button base styling ────────────────────────────── */
+  .btn {
+    transition: all 0.2s ease;
+    font-weight: 500;
+    text-transform: none;
+  }
+
+  html[data-theme="dark"] .btn-primary {
+    border: 1px solid color-mix(in oklch, var(--color-primary) 40%, transparent);
+    box-shadow: 0 0 12px 0 color-mix(in oklch, var(--color-primary) 20%, transparent);
+  }
+
+  html[data-theme="dark"] .btn-primary:hover {
+    box-shadow: 0 0 20px 0 color-mix(in oklch, var(--color-primary) 30%, transparent);
+  }
+
+  /* ── Select / Input consistency ────────────────────── */
+  .select,
+  .select-bordered {
+    transition: border-color 0.15s ease,
+                box-shadow 0.15s ease,
+                background-color 0.15s ease;
+  }
+
+  .select-bordered {
+    border-color: color-mix(
+      in oklch,
+      var(--color-base-content, oklch(0.15 0 0)) 12%,
+      transparent
+    ) !important;
+  }
+
+  .select-bordered:hover {
+    border-color: color-mix(
+      in oklch,
+      var(--color-base-content, oklch(0.15 0 0)) 18%,
+      transparent
+    ) !important;
+  }
+
+  .select:focus,
+  .select-bordered:focus {
+    outline: none !important;
+    border-color: var(--color-primary) !important;
+    box-shadow:
+      0 0 0 2px color-mix(in oklch, var(--color-base-100) 100%, transparent),
+      0 0 0 4px color-mix(in oklch, var(--color-primary) 25%, transparent) !important;
+  }
+
+  html[data-theme="dark"] .select:focus,
+  html[data-theme="dark"] .select-bordered:focus {
+    box-shadow:
+      0 0 0 2px color-mix(in oklch, var(--color-base-100) 100%, transparent),
+      0 0 0 4px color-mix(in oklch, var(--color-primary) 40%, transparent),
+      0 0 12px 2px color-mix(in oklch, var(--color-primary) 35%, transparent) !important;
+  }
+
+  /* ── Placeholder text — consistent styling across all inputs ── */
+  .input::placeholder,
+  .textarea::placeholder,
+  .select option {
+    color: color-mix(
+      in oklch,
+      var(--color-base-content) 35%,
+      transparent
+    );
+    opacity: 1;
+  }
+
+  /* Ensure placeholder is vertically centered */
+  .input {
+    line-height: 1.5;
+    vertical-align: middle;
+  }
+
+  /* ── Checkbox / Radio consistency ──────────────────── */
+  .checkbox,
+  .radio {
+    transition: all 0.2s ease;
+    border-color: color-mix(
+      in oklch,
+      var(--color-base-content, oklch(0.15 0 0)) 22%,
+      transparent
+    ) !important;
+  }
+
+  .checkbox:hover,
+  .radio:hover {
+    border-color: color-mix(
+      in oklch,
+      var(--color-base-content, oklch(0.15 0 0)) 32%,
+      transparent
+    ) !important;
+  }
+
+  html[data-theme="dark"] .checkbox:checked,
+  html[data-theme="dark"] .radio:checked {
+    box-shadow: inset 0 0 8px color-mix(in oklch, var(--color-primary) 20%, transparent);
+  }
+
+  /* ── Theme toggle buttons ─────────────────────────────── */
   @keyframes gradient-shift {
     0%   { background-position: 0% 50%; }
     50%  { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
   }
+
   .btn-gradient-dark {
-    background: linear-gradient(135deg, #0f3460, #16213e, #1a1a2e, #533483);
+    background: linear-gradient(135deg, #0A0E27, #1A1F4B, #0F1535, #1A1F4B);
     background-size: 300% 300%;
     animation: gradient-shift 4s ease infinite;
-    border: 1px solid rgba(83, 52, 131, 0.5);
-    color: #e2d9f3;
+    border: 1px solid color-mix(in oklch, var(--color-primary) 30%, transparent);
+    color: var(--color-primary);
+    box-shadow: 0 0 12px 0 color-mix(in oklch, var(--color-primary) 20%, transparent);
   }
+  
   .btn-gradient-dark:hover {
-    background: linear-gradient(135deg, #533483, #16213e, #0f3460, #1a1a2e);
+    background: linear-gradient(135deg, #1A1F4B, #0F1535, #0A0E27, #1A1F4B);
     background-size: 300% 300%;
     animation: gradient-shift 2s ease infinite;
-    color: #fff;
+    color: var(--color-secondary);
+    box-shadow: 0 0 20px 0 color-mix(in oklch, var(--color-primary) 35%, transparent);
   }
   .btn-gradient-light {
     background: linear-gradient(135deg, #fceabb, #f8b500, #f7971e, #ffd200);
@@ -70,5 +274,89 @@
     background-size: 300% 300%;
     animation: gradient-shift 2s ease infinite;
     color: #3a2800;
+  }
+
+  /* ── Kiosk animations ─────────────────────────────────── */
+  @keyframes pulse-glow {
+    0%, 100% { 
+      box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-primary, #00D9FF) 0%, transparent),
+                  0 0 0 0 color-mix(in oklch, var(--color-primary, #00D9FF) 0%, transparent); 
+    }
+    50% { 
+      box-shadow: 0 0 0 12px color-mix(in oklch, var(--color-primary, #00D9FF) 0%, transparent),
+                  0 0 0 20px color-mix(in oklch, var(--color-primary, #00D9FF) 8%, transparent); 
+    }
+  }
+
+  .animate-pulse-glow { 
+    animation: pulse-glow 3s ease-in-out infinite; 
+  }
+
+  @keyframes scale-in {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  .animate-scale { animation: scale-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  .animate-fade-in { animation: fade-in 0.25s ease forwards; }
+
+  /* ── Dark mode specific enhancements ──────────────────── */
+  html[data-theme="dark"] .card-body {
+    color: var(--color-base-content);
+  }
+
+  html[data-theme="dark"] .tab-active {
+    border-bottom-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  /* Alert styling for dark mode */
+  html[data-theme="dark"] .alert {
+    background-color: color-mix(in oklch, var(--color-base-200) 100%, transparent);
+  }
+
+  html[data-theme="dark"] .alert-error {
+    background-color: color-mix(in oklch, var(--color-error) 10%, var(--color-base-100));
+    border-color: color-mix(in oklch, var(--color-error) 30%, transparent);
+  }
+
+  html[data-theme="dark"] .alert-info {
+    background-color: color-mix(in oklch, var(--color-info) 10%, var(--color-base-100));
+    border-color: color-mix(in oklch, var(--color-info) 30%, transparent);
+  }
+
+  html[data-theme="dark"] .alert-success {
+    background-color: color-mix(in oklch, var(--color-success) 10%, var(--color-base-100));
+    border-color: color-mix(in oklch, var(--color-success) 30%, transparent);
+  }
+
+  /* Badge styling for dark mode */
+  html[data-theme="dark"] .badge {
+    border: 1px solid currentColor;
+  }
+
+  /* Loading state for buttons */
+  html[data-theme="dark"] .btn.loading::after {
+    border-color: color-mix(in oklch, var(--color-base-content) 30%, transparent);
+    border-right-color: var(--color-primary);
+  }
+
+  @keyframes neon-glow {
+    0%, 100% {
+      box-shadow: 0 0 10px 0 rgba(0, 217, 255, 0.4),
+                  0 0 20px 0 rgba(0, 217, 255, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 20px 0 rgba(0, 217, 255, 0.6),
+                  0 0 30px 0 rgba(0, 217, 255, 0.3);
+    }
+  }
+
+  html[data-theme="dark"] .border-primary {
+    border-color: color-mix(in oklch, var(--color-primary) 30%, transparent) !important;
   }
 }

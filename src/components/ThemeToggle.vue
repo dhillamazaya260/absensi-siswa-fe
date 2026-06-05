@@ -6,12 +6,14 @@ const { isDark, toggleTheme } = useTheme()
 <template>
   <button
     type="button"
-    class="btn btn-sm gap-2 px-2 py-2 font-medium border-0 transition-all duration-300 shadow-sm hover:shadow-md focus:ring-2 focus:ring-offset-1 focus:ring-primary/50 bg-clip-padding"
-    :class="isDark ? 'btn-gradient-light' : 'btn-gradient-dark'"
+    class="btn btn-sm gap-2 px-3 py-2 font-bold transition-all duration-500 rounded-xl border-2"
+    :class="isDark 
+      ? 'bg-[#0f172a] border-indigo-500/50 text-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:border-indigo-400' 
+      : 'bg-orange-50 border-orange-200 text-orange-600 hover:bg-orange-100 shadow-none'"
     :aria-label="isDark ? 'Aktifkan light mode' : 'Aktifkan dark mode'"
     @click="toggleTheme"
   >
-    <i :class="`ti ti-${isDark ? 'sun' : 'moon-stars'} text-sm`" aria-hidden="true"></i>
-    {{ isDark ? 'Light Mode' : 'Dark Mode' }}
+    <i :class="[`ti ti-${isDark ? 'sun' : 'moon-stars'} text-base`, isDark ? 'animate-pulse' : '']" aria-hidden="true"></i>
+    <span class="text-xs uppercase tracking-wider">{{ isDark ? 'Light' : 'Dark' }}</span>
   </button>
 </template>

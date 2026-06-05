@@ -5,9 +5,9 @@ defineProps({
 })
 
 const statusCfg = {
-  hadir:     { cls: 'badge-success', label: 'Hadir'     },
-  terlambat: { cls: 'badge-warning', label: 'Terlambat' },
-  gagal:     { cls: 'badge-error',   label: 'Gagal'     },
+  hadir:     { cls: 'bg-success/10 text-success border-success/20', label: 'Hadir'     },
+  terlambat: { cls: 'bg-warning/10 text-warning border-warning/20', label: 'Terlambat' },
+  gagal:     { cls: 'bg-error/10 text-error border-error/20',   label: 'Gagal'     },
 }
 </script>
 
@@ -30,7 +30,7 @@ const statusCfg = {
   <div v-else class="overflow-x-auto">
     <table class="table table-sm w-full">
       <thead>
-        <tr class="border-b border-base-200">
+        <tr class="border-b border-base-200 dark:border-white/10 bg-base-200/50 dark:bg-white/[0.02]">
           <th class="text-[11px] font-medium text-base-content/45 uppercase tracking-wide w-24">Waktu</th>
           <th class="text-[11px] font-medium text-base-content/45 uppercase tracking-wide">Kejadian</th>
           <th class="text-[11px] font-medium text-base-content/45 uppercase tracking-wide w-16">Kelas</th>
@@ -41,13 +41,13 @@ const statusCfg = {
         <tr
           v-for="log in data"
           :key="log.id"
-          class="border-b border-base-200/70 hover:bg-base-200/40 transition-colors"
+          class="border-b border-base-200/70 dark:border-white/5 hover:bg-primary/[0.03] transition-colors"
         >
-          <td class="font-mono text-xs text-base-content/50 whitespace-nowrap">{{ log.waktu }}</td>
-          <td class="text-sm text-base-content">{{ log.kejadian }}</td>
+          <td class="font-mono text-[11px] text-base-content/50 whitespace-nowrap">{{ log.waktu }}</td>
+          <td class="text-sm font-medium text-base-content/80">{{ log.kejadian }}</td>
           <td class="text-sm text-base-content/55">{{ log.kelas }}</td>
           <td class="text-right">
-            <span class="badge badge-sm" :class="statusCfg[log.status]?.cls ?? 'badge-ghost'">
+            <span class="badge badge-sm border font-bold px-2.5 py-2 h-auto" :class="statusCfg[log.status]?.cls ?? 'badge-ghost'">
               {{ statusCfg[log.status]?.label ?? log.status }}
             </span>
           </td>
