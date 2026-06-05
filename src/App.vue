@@ -5,6 +5,7 @@ import { usePasswordStrength } from '@/composables/UsePasswordStrength'
 // Init theme on mount (watchEffect runs automatically)
 useTheme()
 usePasswordStrength()
+
 </script>
 
 <template>
