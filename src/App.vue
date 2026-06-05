@@ -1,6 +1,6 @@
 <script setup>
-import { useTheme } from '@/composables/useTheme'
-import { usePasswordStrength } from '@/composables/usePasswordStrength'
+import { useTheme } from '@/composables/UseTheme'
+import { usePasswordStrength } from '@/composables/UsePasswordStrength'
 
 // Init theme on mount (watchEffect runs automatically)
 useTheme()
