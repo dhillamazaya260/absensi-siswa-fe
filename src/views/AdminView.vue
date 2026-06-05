@@ -9,7 +9,7 @@ import {
 } from 'lucide-vue-next'
 import StatCard  from '../components/StatCard.vue'
 import LogTable  from '../components/LogTable.vue'
-import { useTheme }     from '@/composables/UseTheme'
+import { useTheme } from '@/composables/useTheme'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter }    from 'vue-router'
 import {

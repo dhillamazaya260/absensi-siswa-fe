@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onUnmounted } from 'vue'
 import { Camera, CheckCircle2, XCircle } from 'lucide-vue-next'
-import { useTheme } from '@/composables/UseTheme'
+import { useTheme } from '@/composables/useTheme'
 import { Sun, Moon } from 'lucide-vue-next'
 
 const { isDark, toggleTheme } = useTheme()
