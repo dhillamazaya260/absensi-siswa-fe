@@ -16,6 +16,7 @@ import {
   fetchStatistik, fetchAbsensiHariIni, fetchLogAktivitas,
   registrasiSiswa, overrideStatusAbsensi,
 } from '../api/absensi.js'
+import CameraFeed from '@/components/CameraFeed.vue'
 
 // ─── Theme & Auth ─────────────────────────────────────────
 const { isDark, toggleTheme } = useTheme()
@@ -138,6 +139,25 @@ const regError   = ref('')
 const PHOTO_SLOTS = [
   { key: 'depan', label: 'Depan' }, { key: 'kanan', label: 'Kanan 45°' }, { key: 'kiri', label: 'Kiri 45°' },
 ]
+const cameraRef    = ref(null)
+const showCamera   = ref(false)
+const captureSlot  = ref(null)   // key slot yang sedang diambil
+
+async function openCameraFor(key) {
+  captureSlot.value = key
+  showCamera.value  = true
+}
+async function doCapture() {
+  if (cameraRef.value) {
+    await cameraRef.value.captureBase64()
+  }
+}
+function onPhoto(base64) {
+  if (captureSlot.value) {
+    photos.value[captureSlot.value] = base64
+  }
+  showCamera.value = false
+}
 const photos   = ref({ depan: null, kanan: null, kiri: null })
 const regValid = computed(() => regForm.value.nama.trim() !== '' && regForm.value.nis.trim() !== '')
 const submitReg = async () => {
@@ -444,16 +464,46 @@ const submitReg = async () => {
               </p>
               <div class="grid grid-cols-3 gap-3 mb-5">
                 <button v-for="slot in PHOTO_SLOTS" :key="slot.key" type="button"
-                  class="aspect-square rounded-xl border border-dashed flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all duration-200 group font-medium text-xs"
-                  :class="photos[slot.key] ? 'bg-success/10 border-success/40 text-success' : 'bg-base-200/60 border-base-300/50 text-base-content/35 hover:bg-base-200/80 hover:border-primary/35 hover:text-base-content/50'">
-                  <Camera class="w-5 h-5 transition-colors"></Camera>
-                    :class="photos[slot.key] ? 'text-success' : 'text-base-content/35 group-hover:text-base-content/55' />
-                  <span class="text-[11px] transition-colors"
-                    :class="photos[slot.key] ? 'text-success font-medium' : 'text-base-content/38 group-hover:text-base-content/58'">
-                    {{ slot.label }}
-                  </span>
+                  class="aspect-square rounded-xl border border-dashed flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all duration-200 group font-medium text-xs overflow-hidden relative"
+                  :class="photos[slot.key] ? 'border-success/40' : 'bg-base-200/60 border-base-300/50 text-base-content/35 hover:bg-base-200/80 hover:border-primary/35'"
+                  @click="openCameraFor(slot.key)">
+                  <!-- Thumbnail jika sudah diambil -->
+                  <img v-if="photos[slot.key]" :src="photos[slot.key]"
+                    class="absolute inset-0 w-full h-full object-cover rounded-xl" />
+                  <div v-if="photos[slot.key]"
+                    class="absolute bottom-0 left-0 right-0 bg-success/80 text-success-content text-[10px] font-bold text-center py-0.5">
+                    ✓ {{ slot.label }}
+                  </div>
+                  <template v-if="!photos[slot.key]">
+                    <Camera class="w-5 h-5 text-base-content/35 group-hover:text-base-content/55" />
+                    <span class="text-[11px] text-base-content/38 group-hover:text-base-content/58">{{ slot.label }}</span>
+                  </template>
                 </button>
               </div>
+
+              <!-- Camera Modal untuk capture foto -->
+              <Teleport to="body">
+                <Transition name="modal">
+                  <div v-if="showCamera"
+                    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+                    @click.self="showCamera = false">
+                    <div class="bg-base-100 rounded-2xl p-4 w-full max-w-sm shadow-2xl">
+                      <p class="text-sm font-bold mb-3 text-center">
+                        Ambil foto — <span class="text-primary capitalize">{{ captureSlot }}</span>
+                      </p>
+                      <div class="aspect-video rounded-xl overflow-hidden mb-3">
+                        <CameraFeed ref="cameraRef" mode="capture" class="w-full h-full" @photo="onPhoto" />
+                      </div>
+                      <div class="flex gap-2">
+                        <button class="btn btn-ghost flex-1 btn-sm" @click="showCamera = false">Batal</button>
+                        <button class="btn btn-primary flex-1 btn-sm gap-1" @click="doCapture">
+                          <Camera class="w-3.5 h-3.5" /> Ambil Foto
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </Transition>
+              </Teleport>
 
               <button type="button"
                 class="btn btn-primary w-full gap-2 h-11 min-h-11 text-sm font-semibold shadow-md shadow-primary/15 rounded-lg"

@@ -1,91 +1,71 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 10_000,
   headers: { 'Content-Type': 'application/json' },
 })
 
-// ─── Mock Data ────────────────────────────────────────────────
-const _stats = {
-  hadir: 138, terlambat: 8, absen: 12, belumAbsen: 10, totalSiswa: 168,
-}
+// Inject token
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth_token')
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
 
-const _absensi = [
-  { id: 1,  nama: 'Budi Santoso',    kelas: '4A', waktuMasuk: '06:58', status: 'hadir'     },
-  { id: 2,  nama: 'Siti Rahayu',     kelas: '4A', waktuMasuk: '07:02', status: 'hadir'     },
-  { id: 3,  nama: 'Ahmad Fauzi',     kelas: '4B', waktuMasuk: '07:21', status: 'terlambat' },
-  { id: 4,  nama: 'Dewi Pertiwi',    kelas: '5A', waktuMasuk: '07:05', status: 'hadir'     },
-  { id: 5,  nama: 'Rudi Hermawan',   kelas: '5B', waktuMasuk: '—',     status: 'absen'     },
-  { id: 6,  nama: 'Maya Sari',       kelas: '6A', waktuMasuk: '07:11', status: 'hadir'     },
-  { id: 7,  nama: 'Eko Prasetyo',    kelas: '3A', waktuMasuk: '07:18', status: 'terlambat' },
-  { id: 8,  nama: 'Fitri Handayani', kelas: '2B', waktuMasuk: '—',     status: 'absen'     },
-  { id: 9,  nama: 'Susi Susanti',    kelas: '1A', waktuMasuk: '06:55', status: 'hadir'     },
-  { id: 10, nama: 'Doni Prasetya',   kelas: '6B', waktuMasuk: '07:14', status: 'hadir'     },
-]
-
-const _log = [
-  { id: 1, waktu: '07:32:14', kejadian: 'Budi Santoso berhasil dikenali',         kelas: '4A', status: 'hadir'     },
-  { id: 2, waktu: '07:31:58', kejadian: 'Wajah tidak dikenali (percobaan gagal)', kelas: '—',  status: 'gagal'     },
-  { id: 3, waktu: '07:29:03', kejadian: 'Siti Rahayu berhasil dikenali',          kelas: '4A', status: 'hadir'     },
-  { id: 4, waktu: '07:21:45', kejadian: 'Ahmad Fauzi dikenali — terlambat',       kelas: '4B', status: 'terlambat' },
-  { id: 5, waktu: '07:18:22', kejadian: 'Eko Prasetyo dikenali — terlambat',      kelas: '3A', status: 'terlambat' },
-  { id: 6, waktu: '07:11:09', kejadian: 'Maya Sari berhasil dikenali',            kelas: '6A', status: 'hadir'     },
-  { id: 7, waktu: '07:05:33', kejadian: 'Dewi Pertiwi berhasil dikenali',         kelas: '5A', status: 'hadir'     },
-  { id: 8, waktu: '07:02:11', kejadian: 'Siti Rahayu berhasil dikenali',          kelas: '4A', status: 'hadir'     },
-]
-
-// ─── API Functions ─────────────────────────────────────────────
-/**
- * Ambil statistik kehadiran hari ini.
- * TODO: Ganti dengan → const { data } = await api.get('/statistik/hari-ini')
- */
+// ─── Statistik ─────────────────────────────────────────────────
 export async function fetchStatistik() {
-  // const { data } = await api.get('/statistik/hari-ini')
-  // return data
-  return _stats
+  const { data } = await api.get('/statistik/hari-ini')
+  return data
 }
 
-/**
- * Ambil daftar absensi hari ini, opsional filter per kelas.
- * TODO: Ganti dengan → api.get('/absensi/hari-ini', { params: { kelas } })
- */
+// ─── Absensi hari ini ──────────────────────────────────────────
 export async function fetchAbsensiHariIni(kelas = '') {
-  // const { data } = await api.get('/absensi/hari-ini', { params: { kelas } })
-  // return data
-  return kelas ? _absensi.filter(s => s.kelas === kelas) : _absensi
+  const { data } = await api.get('/absensi/hari-ini', {
+    params: kelas ? { kelas } : {},
+  })
+  // Normalize field: backend returns waktu_masuk, FE expects waktuMasuk
+  return data.map(s => ({
+    ...s,
+    waktuMasuk: s.waktu_masuk ?? s.waktuMasuk ?? '—',
+  }))
 }
 
-/**
- * Ambil log aktivitas sistem secara realtime.
- * TODO: Ganti dengan → api.get('/log/aktivitas')
- */
+// ─── Log aktivitas ────────────────────────────────────────────
 export async function fetchLogAktivitas() {
-  // const { data } = await api.get('/log/aktivitas')
-  // return data
-  return _log
+  const { data } = await api.get('/log/aktivitas')
+  return data
 }
 
-/**
- * Kirim data registrasi wajah siswa baru ke backend.
- * TODO: Ganti dengan → api.post('/siswa/registrasi', payload)
- */
+// ─── Registrasi siswa (dengan foto base64) ────────────────────
 export async function registrasiSiswa(payload) {
-  // const { data } = await api.post('/siswa/registrasi', payload)
-  // return data
-  console.log('[mock] Registrasi siswa:', payload)
-  return { success: true, message: 'Siswa berhasil didaftarkan' }
+  // payload: { nama, kelas, nis, photos: { depan, kanan, kiri } }
+  // Backend expects: { nama, kelas, nisn, photos: [base64, ...] }
+  const photosArr = Object.values(payload.photos || {}).filter(Boolean)
+  const { data } = await api.post('/siswa', {
+    nama   : payload.nama,
+    kelas  : payload.kelas,
+    nisn   : payload.nis,
+    photos : photosArr,
+  })
+  return data
 }
 
-/**
- * Override status absensi siswa secara manual.
- * TODO: Ganti dengan → api.patch(`/absensi/${siswaId}/override`, { status })
- */
-export async function overrideStatusAbsensi(siswaId, status) {
-  // const { data } = await api.patch(`/absensi/${siswaId}/override`, { status })
-  // return data
-  console.log(`[mock] Override siswa ${siswaId} → ${status}`)
-  return { success: true }
+// ─── Override status absensi manual ──────────────────────────
+export async function overrideStatusAbsensi(absensiId, status) {
+  const { data } = await api.patch(`/absensi/${absensiId}/override`, { status })
+  return data
+}
+
+// ─── Recognize face (kiosk) ───────────────────────────────────
+export async function recognizeFace(blob) {
+  const fd = new FormData()
+  fd.append('image', blob, 'frame.jpg')
+  const { data } = await api.post('/absen/recognize', fd, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 8_000,
+  })
+  return data
 }
 
 export default api
