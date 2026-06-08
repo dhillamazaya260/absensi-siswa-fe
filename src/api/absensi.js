@@ -1,71 +1,67 @@
-import axios from 'axios'
+/**
+ * src/api/absensi.js — Axios layer untuk endpoint absensi & siswa
+ */
+import client from './client'
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
-  timeout: 10_000,
-  headers: { 'Content-Type': 'application/json' },
-})
-
-// Inject token
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('auth_token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
-
-// ─── Statistik ─────────────────────────────────────────────────
+// ── Statistik ─────────────────────────────────────────────────────────
 export async function fetchStatistik() {
-  const { data } = await api.get('/statistik/hari-ini')
+  const { data } = await client.get('/statistik/hari-ini')
   return data
 }
 
-// ─── Absensi hari ini ──────────────────────────────────────────
+// ── Absensi hari ini ──────────────────────────────────────────────────
 export async function fetchAbsensiHariIni(kelas = '') {
-  const { data } = await api.get('/absensi/hari-ini', {
+  const { data } = await client.get('/absensi/hari-ini', {
     params: kelas ? { kelas } : {},
   })
-  // Normalize field: backend returns waktu_masuk, FE expects waktuMasuk
-  return data.map(s => ({
+  return data.map((s) => ({
     ...s,
+    // Normalisasi field name: backend kirim waktu_masuk, FE pakai waktuMasuk
     waktuMasuk: s.waktu_masuk ?? s.waktuMasuk ?? '—',
   }))
 }
 
-// ─── Log aktivitas ────────────────────────────────────────────
+// ── Log aktivitas ─────────────────────────────────────────────────────
 export async function fetchLogAktivitas() {
-  const { data } = await api.get('/log/aktivitas')
+  const { data } = await client.get('/log/aktivitas')
   return data
 }
 
-// ─── Registrasi siswa (dengan foto base64) ────────────────────
-export async function registrasiSiswa(payload) {
-  // payload: { nama, kelas, nis, photos: { depan, kanan, kiri } }
-  // Backend expects: { nama, kelas, nisn, photos: [base64, ...] }
-  const photosArr = Object.values(payload.photos || {}).filter(Boolean)
-  const { data } = await api.post('/siswa', {
-    nama   : payload.nama,
-    kelas  : payload.kelas,
-    nisn   : payload.nis,
-    photos : photosArr,
+// ── Daftar siswa ──────────────────────────────────────────────────────
+export async function fetchSiswaList(kelas = '') {
+  const { data } = await client.get('/siswa', {
+    params: kelas ? { kelas } : {},
   })
   return data
 }
 
-// ─── Override status absensi manual ──────────────────────────
-export async function overrideStatusAbsensi(absensiId, status) {
-  const { data } = await api.patch(`/absensi/${absensiId}/override`, { status })
+// ── Registrasi siswa (dengan foto base64) ─────────────────────────────
+export async function registrasiSiswa(payload) {
+  const photosArr = Object.values(payload.photos || {}).filter(Boolean)
+  const { data }  = await client.post('/siswa', {
+    nama  : payload.nama,
+    kelas : payload.kelas,
+    nisn  : payload.nis,
+    photos: photosArr,
+  })
   return data
 }
 
-// ─── Recognize face (kiosk) ───────────────────────────────────
+// ── Override status absensi manual ───────────────────────────────────
+export async function overrideStatusAbsensi(absensiId, status) {
+  const { data } = await client.patch(`/absensi/${absensiId}/override`, { status })
+  return data
+}
+
+// ── Recognize face (kiosk) ────────────────────────────────────────────
 export async function recognizeFace(blob) {
   const fd = new FormData()
   fd.append('image', blob, 'frame.jpg')
-  const { data } = await api.post('/absen/recognize', fd, {
+  const { data } = await client.post('/absen/recognize', fd, {
     headers: { 'Content-Type': 'multipart/form-data' },
-    timeout: 8_000,
+    timeout: 15_000,  // Khusus recognize naik ke 15s untuk ArcFace
   })
   return data
 }
 
-export default api
+export default client
