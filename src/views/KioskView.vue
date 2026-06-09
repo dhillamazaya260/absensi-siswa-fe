@@ -164,12 +164,12 @@ onUnmounted(() => {
         </div>
         <div class="flex items-center gap-2">
           <button @click="toggleTheme"
-                  class="btn btn-sm btn-ghost border border-base-300/60">
-            <Sun  v-if="isDark" class="w-3.5 h-3.5 text-warning" />
-            <Moon v-else        class="w-3.5 h-3.5 text-base-content/60" />
+                  class="btn btn-sm btn-ghost border border-base-300/60 gap-1 px-4 py-4">
+            <Sun  v-if="isDark" class="w-6 h-6 text-warning" />
+            <Moon v-else class="w-6 h-6 text-base-content/60" />
           </button>
           <button @click="handleLogout"
-                  class="btn btn-sm btn-ghost border border-base-300/60 gap-1">
+                  class="btn btn-sm btn-ghost border border-base-300/60 gap-1 px-4 py-4">
             <LogOut class="w-3.5 h-3.5" />
             <span class="text-xs hidden sm:inline">Keluar</span>
           </button>
